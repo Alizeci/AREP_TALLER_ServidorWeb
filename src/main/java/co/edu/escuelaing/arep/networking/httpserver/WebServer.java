@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,7 +39,7 @@ public class WebServer {
 	/**
 	 * Estructura que almacena los servicios con su ruta
 	 */
-	public static HashMap<String, Method> services = new HashMap<>();
+	public static HashMap<String, Method> chm_services = new HashMap<>();
 
 	public WebServer() {
 
@@ -76,20 +77,34 @@ public class WebServer {
 		}
 		serverSocket.close();
 	}
-	
+
 	/**
 	 * Carga cada fichero (.class) con la anotación de @Component del directorio
 	 * raiz (classpath) de un paquete específico, quemado en la variable classpath.
 	 * Se utiliza la librería reflection de google.
 	 */
 	private void searchForComponents() {
-		String classpath = "co.edu.escuelaing.arep.networking.httpserver.webapp.Square";
-		System.out.println("----Se dirije a extaer clases----");
-		
+		String classpath = "co.edu.escuelaing.arep.networking.httpserver";
+
 		Reflections reflections = new Reflections(classpath); // Por reflection obtenemos la lista de clases que se
 																// encuentran dentro de ese paquete.
-		System.out.println("----Se dirije a load----");
-		loadServices();
+		if (reflections != null) {
+			Set<Class<? extends Object>> allClasses = reflections.getTypesAnnotatedWith(Component.class);
+			Object[] classesList = allClasses.toArray();
+
+			if (classesList != null && classesList.length > 0) {
+
+				for (Object ao_obj : classesList) {
+					try {
+						String ls_classpath = ao_obj.toString().substring(6);
+						Class<?> lc_class = Class.forName(ls_classpath);
+						loadServices(lc_class);
+					} catch (ClassNotFoundException e) {
+						Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, e);
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -97,22 +112,16 @@ public class WebServer {
 	 * 
 	 * @param c - classpath de la clase
 	 */
-	private void loadServices() {
+	private void loadServices(Class<?> c) {
 		System.out.println("----Esta en load----");
-		
-		try {
-			String classpath = "co.edu.escuelaing.arep.networking.httpserver.webapp.Square";
-			Class c = Class.forName(classpath);
-			for (Method m : c.getDeclaredMethods()) {
-				if (m.isAnnotationPresent(Service.class)) {
-					String uri = m.getAnnotation(Service.class).uri();
-					System.out.println("uri:: " + uri);
-					System.out.println("m:: " + m);
-					services.put(uri, m);
-				}
+
+		for (Method m : c.getDeclaredMethods()) {
+			if (m.isAnnotationPresent(Service.class)) {
+				String uri = m.getAnnotation(Service.class).uri();
+				System.out.println("uri:: " + uri);
+				System.out.println("m:: " + m);
+				chm_services.put(uri, m);
 			}
-		} catch (ClassNotFoundException e) {
-			Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, e);
 		}
 	}
 
@@ -225,11 +234,16 @@ public class WebServer {
 
 		String response = default404Response();
 		try {
-			String serviceURI = resourceURI.getPath().toString().replaceAll("/appuser", "");
-			Method m = services.get(serviceURI);
-			response = m.invoke(null).toString();
-			response = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + response;
-
+			if (chm_services != null) {
+				String ls_serviceURI = resourceURI.getPath().toString().replaceAll("/appuser", "");
+				if (ls_serviceURI != null && !ls_serviceURI.isEmpty()) {
+					Method lm_m = chm_services.get(ls_serviceURI);
+					if (lm_m != null) {
+						response = lm_m.invoke(null).toString();
+						response = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + response;
+					}
+				}
+			}
 		} catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
 			Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, e);
 			response = default404Response();
