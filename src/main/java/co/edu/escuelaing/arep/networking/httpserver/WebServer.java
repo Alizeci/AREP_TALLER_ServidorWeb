@@ -87,26 +87,20 @@ public class WebServer {
 		String classpath = "co.edu.escuelaing.arep.networking.httpserver";
 		System.out.println("----PRIMER FILTRO----");
 
-		try {
-			Reflections reflections = new Reflections(classpath); // Por reflection obtenemos la lista de clases que se
-																	// encuentran dentro de ese paquete.
-			System.out.println("----SEGUNDO FILTRO----");
-			Set<Class<? extends Object>> allClasses = reflections.getTypesAnnotatedWith(Component.class);
-			Object[] classesList = allClasses.toArray(); //
+		Reflections reflections = new Reflections(); // Por reflection obtenemos la lista de clases que se
+																// encuentran dentro de ese paquete.
+		System.out.println("----SEGUNDO FILTRO----");
+		Set<Class<? extends Object>> allClasses = reflections.getTypesAnnotatedWith(Component.class);
+		Object[] classesList = allClasses.toArray(); //
 
-			for (int i = 0; i < classesList.length; i++) {
-				try {
-					String c = classesList[i].toString().substring(6);
-					Class<?> l_c = Class.forName(c);
-					loadServices(l_c);
-				} catch (ClassNotFoundException e) {
-					Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, e);
-				}
+		for (int i = 0; i < classesList.length; i++) {
+			try {
+				String c = classesList[i].toString().substring(6);
+				Class<?> l_c = Class.forName(c);
+				loadServices(l_c);
+			} catch (ClassNotFoundException e) {
+				Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, e);
 			}
-
-		} catch (java.lang.NoClassDefFoundError e) {
-			Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, e);
-			System.out.println("Entro a clase no encontrada");
 		}
 	}
 
