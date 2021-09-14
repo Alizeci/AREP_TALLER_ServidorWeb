@@ -2,6 +2,8 @@ package co.edu.escuelaing.arep.networking.httpserver;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
@@ -10,9 +12,13 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import co.edu.escuelaing.arep.networking.httpserver.MimeType;
+import co.edu.escuelaing.arep.networking.httpserver.myspring.Service;
 
 /**
  * Clase que contiene todas las características del Webserver.
@@ -25,6 +31,7 @@ public class WebServer {
 	 * Atributo que define el WebServer
 	 */
 	public static final WebServer _instance = new WebServer();
+	public static HashMap<String, Method> services = new HashMap<>();
 
 	public WebServer() {
 
@@ -46,12 +53,13 @@ public class WebServer {
 			System.err.println("Could not listen on port: 35000.");
 			System.exit(1);
 		}
-
+		// searchForComponents();
+		loadServices();
 		boolean running = true;
 		while (running) {
 			Socket clientSocket = null;
 			try {
-				//System.out.println("Listo para recibir ...");
+				// System.out.println("Listo para recibir ...");
 				clientSocket = serverSocket.accept();
 
 			} catch (IOException e) {
@@ -61,6 +69,32 @@ public class WebServer {
 			serverConnection(clientSocket);
 		}
 		serverSocket.close();
+	}
+
+	private void searchForComponents() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void loadServices() {
+
+		try {
+			String classpath = "co.edu.escuelaing.arep.networking.httpserver.webapp.Square";
+			Class c = Class.forName(classpath);
+			
+			for (Method m : c.getDeclaredMethods()) {
+				if (m.isAnnotationPresent(Service.class)) {
+					String uri = m.getAnnotation(Service.class).uri();
+					System.out.println("uri:: "+uri);
+					System.out.println("m:: "+m);
+					services.put(uri, m);
+				}
+			}
+
+		} catch (ClassNotFoundException e) {
+			Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, e);
+		}
+
 	}
 
 	/**
@@ -97,7 +131,7 @@ public class WebServer {
 					if (in != null && in.ready()) {
 
 						while ((inputLine = in.readLine()) != null) {
-							// System.out.println("Received: " + inputLine);
+							System.out.println("Received: " + inputLine);
 							request.append(inputLine);
 							if (!in.ready()) {
 								break;
@@ -124,24 +158,29 @@ public class WebServer {
 																					// los recursos
 								resourceURI = new URI(ls_uriStr);
 
-								if (ls_uriStr.equals("/")
-										|| (!mimeType.equals(MimeType.MIME_APPLICATION_OCTET_STREAM))) {
+								if (resourceURI.toString().startsWith("/appuser")) {
+									outputLine = getComponentResource(resourceURI);
+									out.println(outputLine);
+								} else {
+									if (ls_uriStr.equals("/")
+											|| (!mimeType.equals(MimeType.MIME_APPLICATION_OCTET_STREAM))) {
 
-									if (mimeType.contains("image")) {
-										String path = "target/classes/public" + resourceURI.getPath();
-										File file = new File(path);
-										
-										if (file.exists()) {
-											getImageResource(file, los_outputStream, mimeType);
+										if (mimeType.contains("image")) {
+											String path = "target/classes/public" + resourceURI.getPath();
+											File file = new File(path);
+
+											if (file.exists()) {
+												getImageResource(file, los_outputStream, mimeType);
+											} else {
+												out.println(default404Response());
+											}
 										} else {
-											out.println(default404Response());
+											outputLine = getTextResource(resourceURI, mimeType);
+											out.println(outputLine);
 										}
 									} else {
-										outputLine = getTextResource(resourceURI, mimeType);
-										out.println(outputLine);
+										throw new IOException("ServerConnection MimeType desconocido!");
 									}
-								} else {
-									throw new IOException("ServerConnection MimeType desconocido!");
 								}
 							}
 						}
@@ -156,6 +195,33 @@ public class WebServer {
 		} else {
 			throw new IOException("ServerConnection Socket no puede ser nulo");
 		}
+	}
+
+	// Probar
+	// http://localhost:35000/appuser/co.edu.escuelaing.arep.networking.httpserver.webapp.Square?5,
+	// este muestra 4.0
+	private String getComponentResource(URI resourceURI) {
+		System.out.println("path:" + resourceURI.getPath());
+		System.out.println("query:" + resourceURI.getQuery());
+		String response = default404Response();
+		try {
+			/*
+			 * String classPath = resourceURI.getPath().toString().replaceAll("/appuser/",
+			 * ""); Class component = Class.forName(classPath); for (Method m :
+			 * component.getDeclaredMethods()) { if (m.isAnnotationPresent(Service.class)) {
+			 * response = m.invoke(null).toString(); response = "HTTP/1.1 200 OK\r\n" +
+			 * "Content-Type: text/html\r\n" + "\r\n" + response; } }
+			 */
+			String serviceURI = resourceURI.getPath().toString().replaceAll("/appuser", "");
+			Method m = services.get(serviceURI);
+			response = m.invoke(null).toString();
+			response = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + response;
+
+		} catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
+			Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, e);
+			response = default404Response();
+		}
+		return response;
 	}
 
 	// Probar localhost:35000/index.html, este lee el .html, .css y .js
@@ -196,7 +262,7 @@ public class WebServer {
 	 * @param file             - recurso extraido de disco tipo image
 	 * @param los_outputStream - Salida de la escritura.
 	 * @param mimeType         - tipo de contenido standard a través de la red.
-	 * @throws IOException     - Cuando no es posible leer el recurso.
+	 * @throws IOException - Cuando no es posible leer el recurso.
 	 */
 	public void getImageResource(File file, OutputStream los_outputStream, String mimeType) throws IOException {
 		try {
