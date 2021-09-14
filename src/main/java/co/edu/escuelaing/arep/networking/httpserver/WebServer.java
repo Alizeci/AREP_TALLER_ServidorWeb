@@ -35,7 +35,7 @@ public class WebServer {
 	 * Atributo que define el WebServer
 	 */
 	public static final WebServer _instance = new WebServer();
-	
+
 	/**
 	 * Estructura que almacena los servicios con su ruta
 	 */
@@ -86,20 +86,26 @@ public class WebServer {
 	private void searchForComponents() {
 		String classpath = "co.edu.escuelaing.arep.networking.httpserver";
 		System.out.println("----PRIMER FILTRO----");
-		Reflections reflections = new Reflections(classpath); // Por reflection obtenemos la lista de clases que se
-																// encuentran dentro de ese paquete.
-		System.out.println("----SEGUNDO FILTRO----");
-		Set<Class<? extends Object>> allClasses = reflections.getTypesAnnotatedWith(Component.class);
-		Object[] classesList = allClasses.toArray(); //
 
-		for (int i = 0; i < classesList.length; i++) {
-			try {
-				String c = classesList[i].toString().substring(6);
-				Class<?> l_c = Class.forName(c);
-				loadServices(l_c);
-			} catch (ClassNotFoundException e) {
-				Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, e);
+		try {
+			Reflections reflections = new Reflections(classpath); // Por reflection obtenemos la lista de clases que se
+																	// encuentran dentro de ese paquete.
+			System.out.println("----SEGUNDO FILTRO----");
+			Set<Class<? extends Object>> allClasses = reflections.getTypesAnnotatedWith(Component.class);
+			Object[] classesList = allClasses.toArray(); //
+
+			for (int i = 0; i < classesList.length; i++) {
+				try {
+					String c = classesList[i].toString().substring(6);
+					Class<?> l_c = Class.forName(c);
+					loadServices(l_c);
+				} catch (ClassNotFoundException e) {
+					Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, e);
+				}
 			}
+
+		} catch (java.lang.NoClassDefFoundError e) {
+			throw new java.lang.NoClassDefFoundError("No se reconoce la clase");
 		}
 	}
 
@@ -225,7 +231,7 @@ public class WebServer {
 	private String getComponentResource(URI resourceURI) {
 		System.out.println("path:" + resourceURI.getPath());
 		System.out.println("query:" + resourceURI.getQuery());
-		
+
 		String response = default404Response();
 		try {
 			String serviceURI = resourceURI.getPath().toString().replaceAll("/appuser", "");
