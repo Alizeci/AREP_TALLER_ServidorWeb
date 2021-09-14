@@ -93,7 +93,6 @@ public class WebServer {
 		Object[] classesList = allClasses.toArray(); //
 
 		for (int i = 0; i < classesList.length; i++) {
-			System.out.println(classesList[i].toString().substring(6));
 			try {
 				String c = classesList[i].toString().substring(6);
 				Class<?> l_c = Class.forName(c);
