@@ -25,7 +25,6 @@ public class App {
 	 * @throws ClassNotFoundException 
 	 */
 	public static void main(String[] args) {
-		
 		WebServer httpServer = WebServer._instance;
 		try {
 			httpServer.startSocket(args, getPort());

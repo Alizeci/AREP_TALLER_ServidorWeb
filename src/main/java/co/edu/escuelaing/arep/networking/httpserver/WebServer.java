@@ -61,7 +61,7 @@ public class WebServer {
 			System.err.println("Could not listen on port: 35000.");
 			System.exit(1);
 		}
-		searchForComponents();
+		//searchForComponents();
 		boolean running = true;
 		while (running) {
 			Socket clientSocket = null;
@@ -84,10 +84,10 @@ public class WebServer {
 	 * Se utiliza la librería reflection de google.
 	 */
 	private void searchForComponents() {
-		String classpath = "co.edu.escuelaing.arep.networking.httpserver";
+		String classpath = "co.edu.escuelaing.arep.networking.httpserver.webapp.Square";
 		System.out.println("----PRIMER FILTRO----");
-
-		Reflections reflections = new Reflections(classpath); // Por reflection obtenemos la lista de clases que se
+		
+		org.reflections.Reflections reflections = new Reflections(classpath); // Por reflection obtenemos la lista de clases que se
 																// encuentran dentro de ese paquete.
 		System.out.println("----SEGUNDO FILTRO----");
 		Set<Class<? extends Object>> allClasses = reflections.getTypesAnnotatedWith(Component.class);
@@ -182,8 +182,10 @@ public class WebServer {
 								resourceURI = new URI(ls_uriStr);
 
 								if (resourceURI.toString().startsWith("/appuser")) {
-									outputLine = getComponentResource(resourceURI);
-									out.println(outputLine);
+									//outputLine = getComponentResource(resourceURI);
+									//out.println(outputLine);
+									System.out.println("-------------------------hasta aquí llega");
+									out.println(default404Response());
 								} else {
 									if (ls_uriStr.equals("/")
 											|| (!mimeType.equals(MimeType.MIME_APPLICATION_OCTET_STREAM))) {
