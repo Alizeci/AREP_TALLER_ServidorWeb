@@ -62,7 +62,6 @@ public class WebServer {
 			System.exit(1);
 		}
 		searchForComponents();
-		// loadServices();
 		boolean running = true;
 		while (running) {
 			Socket clientSocket = null;
