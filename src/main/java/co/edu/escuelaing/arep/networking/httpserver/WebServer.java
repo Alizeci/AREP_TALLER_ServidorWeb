@@ -23,6 +23,7 @@ import org.reflections.Reflections;
 
 import co.edu.escuelaing.arep.networking.httpserver.myspring.Component;
 import co.edu.escuelaing.arep.networking.httpserver.myspring.Service;
+import co.edu.escuelaing.arep.networking.httpserver.webapp.Square;
 
 /**
  * Clase que contiene todas las características del Webserver.
@@ -40,6 +41,7 @@ public class WebServer {
 	 * Estructura que almacena los servicios con su ruta
 	 */
 	public static HashMap<String, Method> chm_services = new HashMap<>();
+	public static HashMap<String, Object> cho_services = new HashMap<>();
 
 	public WebServer() {
 
@@ -95,33 +97,33 @@ public class WebServer {
 			if (classesList != null && classesList.length > 0) {
 
 				for (Object ao_obj : classesList) {
-					try {
-						String ls_classpath = ao_obj.toString().substring(6);
-						Class<?> lc_class = Class.forName(ls_classpath);
-						loadServices(lc_class);
-					} catch (ClassNotFoundException e) {
-						Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, e);
-					}
+					String c = ao_obj.toString().substring(6);
+					loadServices(c);
 				}
 			}
 		}
 	}
 
 	/**
-	 * Carga los métodos con anotación Service de la clase especificada
+	 * Carga los métodos con anotación Service de la clase especificada e instancia la clase
 	 * 
-	 * @param c - classpath de la clase
+	 * @param classpath - classpath de la clase
 	 */
-	private void loadServices(Class<?> c) {
-		System.out.println("----Esta en load----");
+	private void loadServices(String classpath) {
+		try {
+			Class<?> lc_class = Class.forName(classpath);
 
-		for (Method m : c.getDeclaredMethods()) {
-			if (m.isAnnotationPresent(Service.class)) {
-				String uri = m.getAnnotation(Service.class).uri();
-				System.out.println("uri:: " + uri);
-				System.out.println("m:: " + m);
-				chm_services.put(uri, m);
+			for (Method m : lc_class.getMethods()) {
+				if (m.isAnnotationPresent(Service.class)) {
+					String uri = m.getAnnotation(Service.class).uri();
+					System.out.println("uri:: " + uri);
+					System.out.println("m:: " + m);
+					chm_services.put(uri, m);
+					cho_services.put(uri, lc_class.newInstance());
+				}
 			}
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+			Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, e);
 		}
 	}
 
@@ -237,9 +239,11 @@ public class WebServer {
 			if (chm_services != null) {
 				String ls_serviceURI = resourceURI.getPath().toString().replaceAll("/appuser", "");
 				if (ls_serviceURI != null && !ls_serviceURI.isEmpty()) {
+					Object lo_o = cho_services.get(ls_serviceURI);
+					System.out.println("obj:" + lo_o);
 					Method lm_m = chm_services.get(ls_serviceURI);
-					if (lm_m != null) {
-						response = lm_m.invoke(null).toString();
+					if (lo_o != null && lm_m != null) {
+						response = lm_m.invoke(lo_o, null).toString();
 						response = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + response;
 					}
 				}
