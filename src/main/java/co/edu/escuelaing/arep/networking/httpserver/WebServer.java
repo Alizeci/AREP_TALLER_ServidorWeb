@@ -13,13 +13,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
-
-//import org.reflections.Reflections;
 
 import co.edu.escuelaing.arep.networking.httpserver.myspring.Component;
 import co.edu.escuelaing.arep.networking.httpserver.myspring.Service;
@@ -61,7 +58,8 @@ public class WebServer {
 			System.err.println("Could not listen on port: 35000.");
 			System.exit(1);
 		}
-		//searchForComponents();
+		// searchForComponents();
+		loadServices();
 		boolean running = true;
 		while (running) {
 			Socket clientSocket = null;
@@ -79,44 +77,25 @@ public class WebServer {
 	}
 
 	/**
-	 * Carga cada fichero (.class) con la anotación de @Component del directorio
-	 * raiz (classpath) de un paquete específico, quemado en la variable classpath.
-	 * Se utiliza la librería reflection de google.
-	 */
-	/*private void searchForComponents() {
-		String classpath = "co.edu.escuelaing.arep.networking.httpserver.webapp.Square";
-		System.out.println("----PRIMER FILTRO----");
-		
-		Reflections reflections = new Reflections(classpath); // Por reflection obtenemos la lista de clases que se
-																// encuentran dentro de ese paquete.
-		System.out.println("----SEGUNDO FILTRO----");
-		Set<Class<? extends Object>> allClasses = reflections.getTypesAnnotatedWith(Component.class);
-		Object[] classesList = allClasses.toArray(); //
-
-		for (int i = 0; i < classesList.length; i++) {
-			try {
-				String c = classesList[i].toString().substring(6);
-				Class<?> l_c = Class.forName(c);
-				loadServices(l_c);
-			} catch (ClassNotFoundException e) {
-				Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, e);
-			}
-		}
-	}*/
-
-	/**
 	 * Carga los métodos con anotación Service de la clase especificada
 	 * 
 	 * @param c - classpath de la clase
 	 */
-	private void loadServices(Class<?> c) {
-		for (Method m : c.getDeclaredMethods()) {
-			if (m.isAnnotationPresent(Service.class)) {
-				String uri = m.getAnnotation(Service.class).uri();
-				System.out.println("uri:: " + uri);
-				System.out.println("m:: " + m);
-				services.put(uri, m);
+	private void loadServices() {
+
+		try {
+			String classpath = "co.edu.escuelaing.arep.networking.httpserver.webapp.Square";
+			Class c = Class.forName(classpath);
+			for (Method m : c.getDeclaredMethods()) {
+				if (m.isAnnotationPresent(Service.class)) {
+					String uri = m.getAnnotation(Service.class).uri();
+					System.out.println("uri:: " + uri);
+					System.out.println("m:: " + m);
+					services.put(uri, m);
+				}
 			}
+		} catch (ClassNotFoundException e) {
+			Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, e);
 		}
 	}
 
@@ -182,10 +161,8 @@ public class WebServer {
 								resourceURI = new URI(ls_uriStr);
 
 								if (resourceURI.toString().startsWith("/appuser")) {
-									//outputLine = getComponentResource(resourceURI);
-									//out.println(outputLine);
-									System.out.println("-------------------------hasta aquí llega");
-									out.println(default404Response());
+									outputLine = getComponentResource(resourceURI);
+									out.println(outputLine);
 								} else {
 									if (ls_uriStr.equals("/")
 											|| (!mimeType.equals(MimeType.MIME_APPLICATION_OCTET_STREAM))) {
