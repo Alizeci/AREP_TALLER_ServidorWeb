@@ -105,7 +105,8 @@ public class WebServer {
 			}
 
 		} catch (java.lang.NoClassDefFoundError e) {
-			throw new java.lang.NoClassDefFoundError("No se reconoce la clase");
+			Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, e);
+			System.out.println("Entro a clase no encontrada");
 		}
 	}
 
