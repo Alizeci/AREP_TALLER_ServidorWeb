@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
-import org.reflections.Reflections;
+//import org.reflections.Reflections;
 
 import co.edu.escuelaing.arep.networking.httpserver.myspring.Component;
 import co.edu.escuelaing.arep.networking.httpserver.myspring.Service;
@@ -83,11 +83,11 @@ public class WebServer {
 	 * raiz (classpath) de un paquete específico, quemado en la variable classpath.
 	 * Se utiliza la librería reflection de google.
 	 */
-	private void searchForComponents() {
+	/*private void searchForComponents() {
 		String classpath = "co.edu.escuelaing.arep.networking.httpserver.webapp.Square";
 		System.out.println("----PRIMER FILTRO----");
 		
-		org.reflections.Reflections reflections = new Reflections(classpath); // Por reflection obtenemos la lista de clases que se
+		Reflections reflections = new Reflections(classpath); // Por reflection obtenemos la lista de clases que se
 																// encuentran dentro de ese paquete.
 		System.out.println("----SEGUNDO FILTRO----");
 		Set<Class<? extends Object>> allClasses = reflections.getTypesAnnotatedWith(Component.class);
@@ -102,7 +102,7 @@ public class WebServer {
 				Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, e);
 			}
 		}
-	}
+	}*/
 
 	/**
 	 * Carga los métodos con anotación Service de la clase especificada
