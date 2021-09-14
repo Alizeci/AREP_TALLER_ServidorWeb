@@ -13,11 +13,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
-import co.edu.escuelaing.arep.networking.httpserver.MimeType;
+
+import org.reflections.Reflections;
+
+import co.edu.escuelaing.arep.networking.httpserver.myspring.Component;
 import co.edu.escuelaing.arep.networking.httpserver.myspring.Service;
 
 /**
@@ -31,6 +35,10 @@ public class WebServer {
 	 * Atributo que define el WebServer
 	 */
 	public static final WebServer _instance = new WebServer();
+	
+	/**
+	 * Estructura que almacena los servicios con su ruta
+	 */
 	public static HashMap<String, Method> services = new HashMap<>();
 
 	public WebServer() {
@@ -53,8 +61,8 @@ public class WebServer {
 			System.err.println("Could not listen on port: 35000.");
 			System.exit(1);
 		}
-		// searchForComponents();
-		loadServices();
+		searchForComponents();
+		// loadServices();
 		boolean running = true;
 		while (running) {
 			Socket clientSocket = null;
@@ -71,30 +79,46 @@ public class WebServer {
 		serverSocket.close();
 	}
 
+	/**
+	 * Carga cada fichero (.class) con la anotación de @Component del directorio
+	 * raiz (classpath) de un paquete específico, quemado en la variable classpath.
+	 * Se utiliza la librería reflection de google.
+	 */
 	private void searchForComponents() {
-		// TODO Auto-generated method stub
+		String classpath = "co.edu.escuelaing.arep.networking.httpserver";
 
+		Reflections reflections = new Reflections(classpath); // Por reflection obtenemos la lista de clases que se
+																// encuentran dentro de ese paquete.
+
+		Set<Class<? extends Object>> allClasses = reflections.getTypesAnnotatedWith(Component.class);
+		Object[] classesList = allClasses.toArray(); //
+
+		for (int i = 0; i < classesList.length; i++) {
+			System.out.println(classesList[i].toString().substring(6));
+			try {
+				String c = classesList[i].toString().substring(6);
+				Class<?> l_c = Class.forName(c);
+				loadServices(l_c);
+			} catch (ClassNotFoundException e) {
+				Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, e);
+			}
+		}
 	}
 
-	private void loadServices() {
-
-		try {
-			String classpath = "co.edu.escuelaing.arep.networking.httpserver.webapp.Square";
-			Class c = Class.forName(classpath);
-			
-			for (Method m : c.getDeclaredMethods()) {
-				if (m.isAnnotationPresent(Service.class)) {
-					String uri = m.getAnnotation(Service.class).uri();
-					System.out.println("uri:: "+uri);
-					System.out.println("m:: "+m);
-					services.put(uri, m);
-				}
+	/**
+	 * Carga los métodos con anotación Service de la clase especificada
+	 * 
+	 * @param c - classpath de la clase
+	 */
+	private void loadServices(Class<?> c) {
+		for (Method m : c.getDeclaredMethods()) {
+			if (m.isAnnotationPresent(Service.class)) {
+				String uri = m.getAnnotation(Service.class).uri();
+				System.out.println("uri:: " + uri);
+				System.out.println("m:: " + m);
+				services.put(uri, m);
 			}
-
-		} catch (ClassNotFoundException e) {
-			Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, e);
 		}
-
 	}
 
 	/**
@@ -203,15 +227,9 @@ public class WebServer {
 	private String getComponentResource(URI resourceURI) {
 		System.out.println("path:" + resourceURI.getPath());
 		System.out.println("query:" + resourceURI.getQuery());
+		
 		String response = default404Response();
 		try {
-			/*
-			 * String classPath = resourceURI.getPath().toString().replaceAll("/appuser/",
-			 * ""); Class component = Class.forName(classPath); for (Method m :
-			 * component.getDeclaredMethods()) { if (m.isAnnotationPresent(Service.class)) {
-			 * response = m.invoke(null).toString(); response = "HTTP/1.1 200 OK\r\n" +
-			 * "Content-Type: text/html\r\n" + "\r\n" + response; } }
-			 */
 			String serviceURI = resourceURI.getPath().toString().replaceAll("/appuser", "");
 			Method m = services.get(serviceURI);
 			response = m.invoke(null).toString();

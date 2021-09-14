@@ -1,6 +1,7 @@
 package co.edu.escuelaing.arep.networking;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,9 +23,10 @@ public class App {
 	/**
 	 * Inicia el WebServer
 	 * @param args - conexión al servidor
+	 * @throws ClassNotFoundException 
 	 */
 	public static void main(String[] args) {
-
+		
 		WebServer httpServer = WebServer._instance;
 		try {
 			httpServer.startSocket(args, getPort());
