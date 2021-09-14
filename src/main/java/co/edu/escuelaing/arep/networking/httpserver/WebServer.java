@@ -85,10 +85,10 @@ public class WebServer {
 	 */
 	private void searchForComponents() {
 		String classpath = "co.edu.escuelaing.arep.networking.httpserver";
-
+		System.out.println("----PRIMER FILTRO----");
 		Reflections reflections = new Reflections(classpath); // Por reflection obtenemos la lista de clases que se
 																// encuentran dentro de ese paquete.
-
+		System.out.println("----SEGUNDO FILTRO----");
 		Set<Class<? extends Object>> allClasses = reflections.getTypesAnnotatedWith(Component.class);
 		Object[] classesList = allClasses.toArray(); //
 
