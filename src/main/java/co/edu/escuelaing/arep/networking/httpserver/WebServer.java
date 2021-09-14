@@ -18,6 +18,8 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
+import org.reflections.Reflections;
+
 import co.edu.escuelaing.arep.networking.httpserver.myspring.Component;
 import co.edu.escuelaing.arep.networking.httpserver.myspring.Service;
 
@@ -58,8 +60,7 @@ public class WebServer {
 			System.err.println("Could not listen on port: 35000.");
 			System.exit(1);
 		}
-		// searchForComponents();
-		loadServices();
+		searchForComponents();
 		boolean running = true;
 		while (running) {
 			Socket clientSocket = null;
@@ -75,6 +76,21 @@ public class WebServer {
 		}
 		serverSocket.close();
 	}
+	
+	/**
+	 * Carga cada fichero (.class) con la anotación de @Component del directorio
+	 * raiz (classpath) de un paquete específico, quemado en la variable classpath.
+	 * Se utiliza la librería reflection de google.
+	 */
+	private void searchForComponents() {
+		String classpath = "co.edu.escuelaing.arep.networking.httpserver.webapp.Square";
+		System.out.println("----Se dirije a extaer clases----");
+		
+		Reflections reflections = new Reflections(classpath); // Por reflection obtenemos la lista de clases que se
+																// encuentran dentro de ese paquete.
+		System.out.println("----Se dirije a load----");
+		loadServices();
+	}
 
 	/**
 	 * Carga los métodos con anotación Service de la clase especificada
@@ -82,7 +98,8 @@ public class WebServer {
 	 * @param c - classpath de la clase
 	 */
 	private void loadServices() {
-
+		System.out.println("----Esta en load----");
+		
 		try {
 			String classpath = "co.edu.escuelaing.arep.networking.httpserver.webapp.Square";
 			Class c = Class.forName(classpath);
