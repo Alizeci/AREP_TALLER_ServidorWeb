@@ -14,7 +14,16 @@ Ejemplos de acceso a componentes del Framework y funcionalidad especificada en l
 + Usando el **POJO Square**, se obtiene un número quemado en código. [/appuser/square](https://servidor-web-ioc.herokuapp.com/appuser/square)
 
 ## Descripción Arquitectura ![Descripción detallada](https://img.icons8.com/windows/32/000000/product-architecture.png)
-Para conocerla en detalle acceda a [descripción de diseño](https://github.com/Alizeci/AREP-TALLER_ServidorWeb/blob/main/articuloLaTEX.pdf).
+
+El **Framework propuesto** está compuesto de:
++ **Meta-Protocolos de Objetos**, Interfaces que brindan acceso al lenguaje.
++ **Reflexión**, API de *java* y de *google* para el acceso a las abstracciones como *Method, Class, Constructor, invocación de métodos*. Así como el cargue de las las clases, con anotación *@Component* al iniciar.
++ **Anotaciones**, Mecanismo de metadata para los programas Java y facilitar la creación del framework basado en *meta-información*. También se hace uso de **Meta-Anotaciones** como *@Retention* y *@Target*.
++ **POJOS**, Game y Square como *componentes*, con métodos de acceso anotados como *servicios* asociados a una uri.
+
+Se desarrolla la arquitectura del servidor de aplicaciones con el **Patrón IoC**, evidenciandose en el uso de las anotaciones.
+
+Finalmente, dada la estructura, se hace extensible la utilización de más de los dos POJOS implementados y/o cualquier otro Objeto bajo la anotación de *@Component*, es decir, el servidor lo cargará al iniciar y prepara para su uso. Así como la generación de más métodos en estos componentes bajo la anotación *@Service* y la uri de identificación.
 
 ## Herramientas utilizadas
 
