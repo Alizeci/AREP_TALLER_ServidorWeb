@@ -1,4 +1,4 @@
-## Construcción de un Servidor Web [![Heroku](https://img.icons8.com/color/25/000000/heroku.png)](https://servidor-web-ioc.herokuapp.com/)
+## Construcción de un Servidor Web con Framework IoC[![Heroku](https://img.icons8.com/color/25/000000/heroku.png)](https://servidor-web-ioc.herokuapp.com/)
 
 Se construye un **servidor web** tipo apache en java, que soporte múlltiples solicitudes seguidas no concurrentes. El servidor cuanta con la capacidad de entregar páginas **html e imágenes PNG**. Así mismo el servidor provee un **framework IoC** base para la construcción de aplicaciones web a partir de **POJOS**. Se construyen dos uno **Game** y otro **Square**.
 
