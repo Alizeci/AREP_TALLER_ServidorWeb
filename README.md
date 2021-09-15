@@ -7,7 +7,7 @@ A continuación de describe el prototipo mínimo entregado, en el que se demuest
 ## Entendimiento 🎯
 Se puede evidenciar la capacidad del servidor web para gestionar **recursos estáticos** de subtipo: *.html*, *.css*, *.js*, *.jpg*, *.png* para ser leidos por el Usuario. Los *subtipos de los archivos* recibidos de tipo **image** y **text** pueden ser *extendidos*, agregandolos al Map en **MimeTypes.java**.
 
-Ejemplos de recursos accesibles desde el navegador: [.html](https://servidor-web-ioc.herokuapp.com/index.html), [.png](https://servidor-web-ioc.herokuapp.com/check.png), [testImage.html](https://website-client-server.herokuapp.com/testImage.html) *(Imágen incrustada en html)*
+Ejemplos de recursos accesibles desde el navegador: [.html](https://servidor-web-ioc.herokuapp.com/index.html), [.png](https://servidor-web-ioc.herokuapp.com/check.png), [testImage.html](https://servidor-web-ioc.herokuapp.com/testImage.html) *(Imágen incrustada en html)*
 
 Ejemplos de acceso a componentes del Framework y funcionalidad especificada en la uri: 
 + Usando el **POJO Game**, se muestra en pantalla el nombre de un juego diferente en cada llamado. [/appuser/randomsentence](https://servidor-web-ioc.herokuapp.com/appuser/randomsentence)
