@@ -37,9 +37,12 @@ public class WebServer {
 	public static final WebServer _instance = new WebServer();
 
 	/**
-	 * Estructura que almacena los servicios con su ruta
+	 * Estructura que almacena los métodos asociados a un servicio
 	 */
 	public static HashMap<String, Method> chm_services = new HashMap<>();
+	/**
+	 * Estructura que almacena los Objetos asociados a un servicio
+	 */
 	public static HashMap<String, Object> cho_services = new HashMap<>();
 
 	public WebServer() {
@@ -84,7 +87,7 @@ public class WebServer {
 	 * raiz (classpath) de un paquete específico, quemado en la variable classpath.
 	 * Se utiliza la librería reflection de google.
 	 */
-	private void searchForComponents() {
+	public void searchForComponents() {
 		String classpath = "co.edu.escuelaing.arep.networking.httpserver";
 
 		Reflections reflections = new Reflections(classpath); // Por reflection obtenemos la lista de clases que se
@@ -109,7 +112,7 @@ public class WebServer {
 	 * 
 	 * @param classpath - classpath de la clase
 	 */
-	private void loadServices(String classpath) {
+	public void loadServices(String classpath) {
 		try {
 			Class<?> lc_class = Class.forName(classpath);
 
@@ -230,7 +233,7 @@ public class WebServer {
 	 * @param resourceURI - Ruta del pojo requerido
 	 * @return servicio del pojo especificado
 	 */
-	private String getComponentResource(URI resourceURI) {
+	public String getComponentResource(URI resourceURI) {
 		
 		String response = default404Response();
 		try {
