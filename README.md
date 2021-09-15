@@ -1,6 +1,6 @@
 ## Construcción de un Servidor Web [![Heroku](https://img.icons8.com/color/25/000000/heroku.png)](https://servidor-web-ioc.herokuapp.com/)
 
-Se construye un servidor web tipo Apache en java, que soporte múlltiples solicitudes seguidas no concurrentes. El servidor cuanta con la capacidad de entregar páginas **html e imágenes PNG**. Así mismo el servidor provee un **framework IoC** base para la construcción de aplicaciones web a partir de **POJOS**. Se construyen dos uno **Game** y otro **Square**.
+Se construye un **servidor web** tipo apache en java, que soporte múlltiples solicitudes seguidas no concurrentes. El servidor cuanta con la capacidad de entregar páginas **html e imágenes PNG**. Así mismo el servidor provee un **framework IoC** base para la construcción de aplicaciones web a partir de **POJOS**. Se construyen dos uno **Game** y otro **Square**.
 
 A continuación de describe el prototipo mínimo entregado, en el que se demuestra **capacidades reflexivas de JAVA** y permite por lo menos cargar un bean **(POJO)** y derivar una aplicación Web a partir de él.
 
