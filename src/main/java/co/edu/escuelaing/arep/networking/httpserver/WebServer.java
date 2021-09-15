@@ -23,7 +23,6 @@ import org.reflections.Reflections;
 
 import co.edu.escuelaing.arep.networking.httpserver.myspring.Component;
 import co.edu.escuelaing.arep.networking.httpserver.myspring.Service;
-import co.edu.escuelaing.arep.networking.httpserver.webapp.Square;
 
 /**
  * Clase que contiene todas las características del Webserver.
@@ -68,7 +67,7 @@ public class WebServer {
 		while (running) {
 			Socket clientSocket = null;
 			try {
-				// System.out.println("Listo para recibir ...");
+				System.out.println("Listo para recibir ...");
 				clientSocket = serverSocket.accept();
 
 			} catch (IOException e) {
@@ -105,7 +104,8 @@ public class WebServer {
 	}
 
 	/**
-	 * Carga los métodos con anotación Service de la clase especificada e instancia la clase
+	 * Carga los métodos con anotación @Service de la clase especificada e instancia
+	 * la clase
 	 * 
 	 * @param classpath - classpath de la clase
 	 */
@@ -116,8 +116,6 @@ public class WebServer {
 			for (Method m : lc_class.getMethods()) {
 				if (m.isAnnotationPresent(Service.class)) {
 					String uri = m.getAnnotation(Service.class).uri();
-					System.out.println("uri:: " + uri);
-					System.out.println("m:: " + m);
 					chm_services.put(uri, m);
 					cho_services.put(uri, lc_class.newInstance());
 				}
@@ -226,25 +224,26 @@ public class WebServer {
 			throw new IOException("ServerConnection Socket no puede ser nulo");
 		}
 	}
-
-	// Probar
-	// http://localhost:35000/appuser/co.edu.escuelaing.arep.networking.httpserver.webapp.Square?5,
-	// este muestra 4.0
+	
+	/**
+	 * Permite acceder a un componente por reflexión e IoC
+	 * @param resourceURI - Ruta del pojo requerido
+	 * @return servicio del pojo especificado
+	 */
 	private String getComponentResource(URI resourceURI) {
-		System.out.println("path:" + resourceURI.getPath());
-		System.out.println("query:" + resourceURI.getQuery());
-
+		
 		String response = default404Response();
 		try {
 			if (chm_services != null) {
 				String ls_serviceURI = resourceURI.getPath().toString().replaceAll("/appuser", "");
 				if (ls_serviceURI != null && !ls_serviceURI.isEmpty()) {
 					Object lo_o = cho_services.get(ls_serviceURI);
-					System.out.println("obj:" + lo_o);
 					Method lm_m = chm_services.get(ls_serviceURI);
 					if (lo_o != null && lm_m != null) {
+
 						response = lm_m.invoke(lo_o, null).toString();
-						response = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + response;
+						response = htmlComponent(response);
+						;
 					}
 				}
 			}
@@ -255,7 +254,6 @@ public class WebServer {
 		return response;
 	}
 
-	// Probar localhost:35000/index.html, este lee el .html, .css y .js
 	/**
 	 * Permite leer un recurso de tipo .html, .css y .js
 	 * 
@@ -286,7 +284,6 @@ public class WebServer {
 		return response.toString();
 	}
 
-	// Probar localhost:35000/testImage.html, este lee el .jpg, .png
 	/**
 	 * Permite leer un recurso de tipo .jpg, .png
 	 * 
@@ -313,7 +310,20 @@ public class WebServer {
 	}
 
 	/**
-	 * Página por defecto al intentar conectar con el servidor
+	 * Página html por defecto al acceder a un componente
+	 * @param response - Retorno del servicio, que en este caso es el nombre de un juego
+	 * @return la página por defecto en html
+	 */
+	private String htmlComponent(String response) {
+		String outputLine = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "\r\n" + "<!DOCTYPE html>\n"
+				+ "<html>\n" + "	<head>\n" + "		<meta charset=\"UTF-8\">\n" + "		<title>Inicio</title>\n"
+				+ "	</head>\n" + "	<body>\n" + "		<h1> PRUEBA DE CONCEPTO CON POJO GAME</h1>\n" + "		<h1>"
+				+ response + "</h1>\n" + "	</body>\n" + "</html>\n";
+		return outputLine;
+	}
+
+	/**
+	 * Página html por defecto al intentar conectar con el servidor
 	 * 
 	 * @return la página por defecto en html
 	 */

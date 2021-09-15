@@ -10,4 +10,5 @@ public class Square {
 	public Double square() {
 		return 2.0 * 2.0;
 	}
+	
 }
