@@ -9,7 +9,7 @@ import co.edu.escuelaing.arep.networking.httpserver.WebServer;
 
 /**
  * Clase que contiene las caracteristicas principales de comunicación para Heroku usando librerías para manejo de red de java
- * @author aleja
+ * @author Alejandra Izquierdo
  *
  */
 public class App {

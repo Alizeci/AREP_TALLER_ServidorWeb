@@ -27,7 +27,7 @@ import co.edu.escuelaing.arep.networking.httpserver.myspring.Service;
 /**
  * Clase que contiene todas las características del Webserver.
  * 
- * @author aleja 05/09/2021
+ * @author Alejandra Izquierdo 14/09/2021
  */
 public class WebServer {
 
@@ -159,7 +159,7 @@ public class WebServer {
 					if (in != null && in.ready()) {
 
 						while ((inputLine = in.readLine()) != null) {
-							System.out.println("Received: " + inputLine);
+							//System.out.println("Received: " + inputLine);
 							request.append(inputLine);
 							if (!in.ready()) {
 								break;
@@ -236,11 +236,12 @@ public class WebServer {
 		try {
 			if (chm_services != null) {
 				String ls_serviceURI = resourceURI.getPath().toString().replaceAll("/appuser", "");
+				String ls_value = resourceURI.getQuery();
+				System.out.println(ls_value);
 				if (ls_serviceURI != null && !ls_serviceURI.isEmpty()) {
 					Object lo_o = cho_services.get(ls_serviceURI);
 					Method lm_m = chm_services.get(ls_serviceURI);
 					if (lo_o != null && lm_m != null) {
-
 						response = lm_m.invoke(lo_o, null).toString();
 						response = htmlComponent(response);
 						;

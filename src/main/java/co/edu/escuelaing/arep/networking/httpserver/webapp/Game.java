@@ -5,6 +5,11 @@ import java.util.concurrent.ThreadLocalRandom;
 import co.edu.escuelaing.arep.networking.httpserver.myspring.Component;
 import co.edu.escuelaing.arep.networking.httpserver.myspring.Service;
 
+/**
+ * POJO Game, con sus características básicas
+ * @author Alejandra Izquierdo
+ *
+ */
 @Component
 public class Game {
 	
